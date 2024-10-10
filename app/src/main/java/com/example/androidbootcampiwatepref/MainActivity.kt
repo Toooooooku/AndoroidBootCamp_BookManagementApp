@@ -13,6 +13,7 @@ import com.example.androidbootcampiwatepref.ui.screen.BookManagementApp
 import com.example.androidbootcampiwatepref.ui.theme.AndroidBootcampIwatePrefTheme
 import com.example.androidbootcampiwatepref.viewmodel.BookViewModel
 
+
 class MainActivity : ComponentActivity() {
     private val viewModel: BookViewModel by viewModels()
 
@@ -20,14 +21,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AndroidBootcampIwatePrefTheme {
-                BookManagementApp(viewModel)
-
                 val navController = rememberNavController()
-                NavHost(navController, startDestination = "bookList") {
-                    composable("bookList") { BookListScreen(navController) }
+                 NavHost(navController, startDestination = "bookList") {
+                    composable("bookList") { BookListScreen(navController,viewModel) }
                     composable("addBook") { AddBookScreen(navController, viewModel) }
-//                    composable("bookList") { BookManagementApp(viewModel) }
+                    composable("bookList") { BookManagementApp(viewModel) }
+                     //test
             }
         }
     }
+
 }}

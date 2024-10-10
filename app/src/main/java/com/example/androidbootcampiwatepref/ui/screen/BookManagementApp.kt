@@ -1,74 +1,51 @@
 package com.example.androidbootcampiwatepref.ui.screen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.androidbootcampiwatepref.ui.uimodel.Book
 import com.example.androidbootcampiwatepref.ui.uimodel.BookStatus
 import com.example.androidbootcampiwatepref.viewmodel.BookViewModel
-
 @Composable
 fun BookManagementApp(viewModel: BookViewModel) {
     val books by viewModel.books.collectAsState(initial = emptyList())
-    var title by remember { mutableStateOf("") }
-    var author by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(modifier = Modifier.padding(16.dp)) {
-        // Book list
+        DisplayMessages(uiState = uiState)
+
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(books) { book ->
-                BookItem(book, onStatusChange = { newStatus ->
-                    viewModel.updateBookStatus(book.id, newStatus)
-                })
+                BookItem(
+                    book = book,
+                    onStatusChange = { newStatus: BookStatus ->
+                        viewModel.updateBookStatus(book.id, newStatus)
+                    }
+                )
             }
         }
 
-        // Add new book
-        Row(modifier = Modifier.fillMaxWidth()) {
-            TextField(
-                value = title,
-                onValueChange = { title = it },
-                label = { Text("Title") },
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            TextField(
-                value = author,
-                onValueChange = { author = it },
-                label = { Text("Author") },
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Button(
-            onClick = {
-                if (title.isNotBlank() && author.isNotBlank()) {
-                    viewModel.addBook(title, author)
-                    title = ""
-                    author = ""
-                }
-            },
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-        ) {
-            Text("Add Book")
-        }
+        AddBookForm(onAddBook = viewModel::addBook)
+    }
+}
+
+@Composable
+fun DisplayMessages(uiState: BookViewModel.UiState) {
+    uiState.error?.let { error: String ->
+        Text(text = error, color = Color.Red, modifier = Modifier.padding(bottom = 8.dp))
+    }
+
+    uiState.message?.let { message: String ->
+        Text(
+            text = message,
+            color = Color.Green,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
     }
 }
 
@@ -92,6 +69,44 @@ fun BookItem(book: Book, onStatusChange: (BookStatus) -> Unit) {
                     Text("Change Status")
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun AddBookForm(onAddBook: (String, String) -> Unit) {
+    var title by remember { mutableStateOf("") }
+    var author by remember { mutableStateOf("") }
+
+    Column {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            TextField(
+                value = title,
+                onValueChange = { title = it },
+                label = { Text("Title") },
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            TextField(
+                value = author,
+                onValueChange = { author = it },
+                label = { Text("Author") },
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Button(
+            onClick = {
+                if (title.isNotBlank() && author.isNotBlank()) {
+                    onAddBook(title, author)
+                    title = ""
+                    author = ""
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text("Add Book")
         }
     }
 }

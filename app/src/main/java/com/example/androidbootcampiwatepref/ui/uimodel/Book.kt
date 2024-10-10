@@ -14,3 +14,4 @@ data class Book(
 enum class BookStatus {
     UNREAD, READING, READ
 }
+
